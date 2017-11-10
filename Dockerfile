@@ -1,32 +1,29 @@
 FROM ubuntu:16.04
 
 WORKDIR /plone
-
-RUN useradd  -ms /bin/bash zope
-
+RUN apt-get update
+RUN apt-get install -y software-properties-common python-software-properties build-essential
+RUN add-apt-repository -y ppa:fkrull/deadsnakes
 RUN apt-get update
 
-RUN apt-get install -y --no-install-recommends wget sudo python-dev \ 
-  build-essential libssl-dev libxml2-dev libxslt1-dev libbz2-dev libjpeg-dev \ 
-  libtiff5-dev libopenjp2-7-dev libxml2 libxslt1.1 libjpeg62 rsync lynx wv \ 
-  libtiff5 libopenjp2-7 poppler-utils ca-certificates git-core ssh 
+# python and PIL dependencies
+RUN apt-get install -y python2.6-dev libjpeg62 libjpeg-dev libfreetype6 libfreetype6-dev zlib1g-dev \
+   libxml2 python-libxml2 python-libxslt1 libxslt1-dev
+#RUN ln -s /usr/lib/x86_64-linux-gnu/libjpeg.so /usr/lib;ln -s /usr/lib/x86_64-linux-gnu/libfreetype.so /usr/lib;ln -s /usr/lib/x86_64-linux-gnu/libz.so /usr/lib
 
+RUN useradd  -ms /bin/bash zope
+RUN chown zope /plone
 
-RUN mkdir -p profiles/base && mkdir profiles/versions
-
-COPY bootstrap-buildout.py ./
-
-COPY profiles/versions/ ./profiles/versions/
-COPY profiles/base/ ./profiles/base/
-
-RUN echo "[buildout]\nextends = profiles/base/base.cfg" > buildout.cfg
-
-RUN chown -R zope /plone 
 
 USER zope
 
-RUN python2.7 bootstrap-buildout.py --setuptools-version=33.1.1 --buildout-version=2.9.5
-RUN bin/buildout -v
-RUN rm -Rf bin mr-developer-src var profiles locales bootstrap-buildout.py  buildout.cfg parts
+# First Buildout run - just to get the eggs in place
+COPY buildout-bootstrap.py ./
+COPY ./profiles/ profiles/
+#COPY ./profiles/versions/ ./profiles/versions/
 
+RUN echo "[buildout]\nextends = profiles/base/base.cfg" > buildout.cfg 
+
+RUN python2.6 buildout-bootstrap.py -v 1.4.4
+RUN bin/buildout -v
 USER root
