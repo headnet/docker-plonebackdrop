@@ -3,7 +3,7 @@ FROM ubuntu:16.04
 WORKDIR /plone
 RUN apt-get update
 RUN apt-get install -y software-properties-common python-software-properties build-essential
-RUN add-apt-repository -y ppa:fkrull/deadsnakes
+RUN add-apt-repository -y ppa:deadsnakes
 RUN apt-get update
 
 # python and PIL dependencies
