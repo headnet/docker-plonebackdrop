@@ -12,7 +12,7 @@ RUN apt-get install -y --no-install-recommends wget sudo python-dev \
   libtiff5 libopenjp2-7 poppler-utils ca-certificates git-core ssh
 
 
-#RUN mkdir -p profiles/base && mkdir profiles/versions
+##RUN mkdir -p profiles/base && mkdir profiles/versions
 
 COPY bootstrap-buildout.py ./
 
